@@ -46,6 +46,20 @@ module.exports = {
               }
             )
         )
+        .addNumberOption((option) =>
+          option
+            .setName("date")
+            .setDescription("Enter the day of the kill")
+            .setRequired(true)
+        )
+        .addStringOption((option) =>
+          option
+            .setName("time")
+            .setDescription(
+              "Enter the SERVER TIME (24 hours format) of the kill. FORMAT: 12:50 / 23:34"
+            )
+            .setRequired(true)
+        )
     )
     .addSubcommand((subcommand) =>
       subcommand
@@ -94,11 +108,11 @@ module.exports = {
             .setDescription("Enter the day of the kill")
             .setRequired(true)
         )
-        .addNumberOption((option) =>
+        .addStringOption((option) =>
           option
             .setName("time")
             .setDescription(
-              "Enter the SERVER TIME (24 hours format) of the kill. FORMAT: hh / hh.mm"
+              "Enter the SERVER TIME (24 hours format) of the kill. FORMAT: 12:50 / 23:34"
             )
             .setRequired(true)
         )
@@ -106,23 +120,32 @@ module.exports = {
   async execute(interaction) {
     await interaction.deferReply();
 
+    const timeRegex = /([01]?[0-9]|2[0-3]):[0-5][0-9]/g;
+
     // Get the user input
     let value = interaction.options.getString("name");
     let dateInput = interaction.options.getNumber("date");
-    let timeInput = interaction.options.getNumber("time");
+    let timeInput = interaction.options.getString("time");
     let boss;
+
+    // Validate user iput for time
+    if (
+      (interaction.options.getSubcommand() == "create" ||
+        interaction.options.getSubcommand() == "edit") &&
+      !timeRegex.test(timeInput)
+    ) {
+      return interaction.editReply(
+        "Please enter a valid time format. Colons(:) are required & 24 hours format only. Example: 23:50, 10:23, 05:15"
+      );
+    }
 
     // INSERT the entry on the DB according to the command input
     if (interaction.options.getSubcommand() == "create") {
       let date = new Date(Date.now());
       date.setUTCDate(dateInput);
-      if (!Number.isInteger(timeInput)) {
-        timeInput = timeInput.toString().split(".");
-        date.setUTCHours(timeInput.shift());
-        date.setUTCMinutes(timeInput.shift());
-      } else {
-        date.setUTCHours(timeInput);
-      }
+      timeInput = timeInput.split(":");
+      date.setUTCHours(timeInput.shift());
+      date.setUTCMinutes(timeInput.shift());
       const newBoss = await WorldBoss.create({
         name: value.charAt(0).toUpperCase() + value.slice(1),
         slug: value,
@@ -146,26 +169,53 @@ module.exports = {
     // Switch for GET and EDIT commands
     if (boss) {
       let { name, killedAt } = boss;
-      // killedAt = killedAt.toUTCString();
-      // let arr = killedAt.split(" ");
-      // arr.pop();
-      // arr.shift();
-      // arr.push("Server Time");
-      // killedAt = arr.join(" ");
       switch (interaction.options.getSubcommand()) {
         case "get":
           return await interaction.editReply(
-            `${name} killed at ${killedAt.getUTCHours()}:${killedAt.getUTCMinutes()} - ${killedAt.getUTCDate()}.${killedAt.getUTCMonth()}`
+            `${name} killed at ${killedAt.getUTCHours()}:${killedAt.getUTCMinutes()} ST - ${killedAt.getUTCDate()}/${
+              killedAt.getUTCMonth() + 1
+            }/${killedAt.getUTCFullYear()}`
           );
 
         case "edit":
-          return await interaction.editReply(`Requested a EDIT for ${boss}`);
+          let date = new Date(Date.now());
+          date.setUTCDate(dateInput);
+          timeInput = timeInput.split(":");
+          date.setUTCHours(timeInput.shift());
+          date.setUTCMinutes(timeInput.shift());
+          try {
+            await WorldBoss.findOneAndUpdate(
+              {
+                slug: boss.slug,
+              },
+              {
+                killedAt: date,
+              }
+            );
+          } catch (error) {
+            console.error(error);
+            return await interaction.editReply(
+              "An error occured while trying to edit this entry, please try again!"
+            );
+          }
+          return await interaction.editReply(
+            `Last saved entry for ${boss.name} edited successfully`
+          );
 
         case "delete":
-          await WorldBoss.deleteOne({
-            slug: value,
-          });
-          return await interaction.editReply(`Requested DELETE for ${boss}`);
+          try {
+            await WorldBoss.deleteOne({
+              slug: value,
+            });
+            return await interaction.editReply(
+              `Last saved entry for ${boss.name} removed successfully`
+            );
+          } catch (err) {
+            console.error(err);
+            return await interaction.editReply(
+              "An error occurred while deleting this entry, please try again!"
+            );
+          }
 
         default:
           break;
