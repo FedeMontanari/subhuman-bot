@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require("discord.js");
 const WorldBoss = require("../../models/worldBosses");
+const { WorldBossEmbedBuilder } = require("../../utils/worldBossEmbedBuilder");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -169,13 +170,15 @@ module.exports = {
     // Switch for GET and EDIT commands
     if (boss) {
       let { name, killedAt } = boss;
+      let respawnCd = new Date();
+      respawnCd.setUTCHours(killedAt.getUTCHours() + 30);
+      let window = new Date();
+      window.setUTCHours(respawnCd.getUTCHours() + 70);
       switch (interaction.options.getSubcommand()) {
         case "get":
-          return await interaction.editReply(
-            `${name} killed at ${killedAt.getUTCHours()}:${killedAt.getUTCMinutes()} ST - ${killedAt.getUTCDate()}/${
-              killedAt.getUTCMonth() + 1
-            }/${killedAt.getUTCFullYear()}`
-          );
+          return await interaction.editReply({
+            embeds: [await WorldBossEmbedBuilder(boss)],
+          });
 
         case "edit":
           let date = new Date(Date.now());
