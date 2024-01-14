@@ -4,9 +4,9 @@ module.exports = {
   async WorldBossEmbedBuilder(data) {
     let { name, killedAt } = data;
 
-    let respawnCd = new Date();
+    let respawnCd = new Date(killedAt)
     respawnCd.setUTCHours(killedAt.getUTCHours() + 30);
-    let window = new Date();
+    let window = new Date(killedAt)
     window.setUTCHours(respawnCd.getUTCHours() + 70);
 
     let image;
