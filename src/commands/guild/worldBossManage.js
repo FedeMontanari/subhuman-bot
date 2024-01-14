@@ -5,7 +5,7 @@ const { WorldBossEmbedBuilder } = require("../../utils/worldBossEmbedBuilder");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("wboss")
-    .setDescription("Worldboss timers")
+    .setDescription("World Boss timers")
     .addSubcommand((subcommand) =>
       subcommand
         .setName("get")
@@ -169,11 +169,6 @@ module.exports = {
 
     // Switch for GET and EDIT commands
     if (boss) {
-      let { name, killedAt } = boss;
-      let respawnCd = new Date();
-      respawnCd.setUTCHours(killedAt.getUTCHours() + 30);
-      let window = new Date();
-      window.setUTCHours(respawnCd.getUTCHours() + 70);
       switch (interaction.options.getSubcommand()) {
         case "get":
           return await interaction.editReply({
