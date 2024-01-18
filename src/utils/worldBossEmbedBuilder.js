@@ -2,12 +2,7 @@ const { EmbedBuilder } = require("discord.js");
 
 module.exports = {
   async WorldBossEmbedBuilder(data) {
-    let { name, killedAt } = data;
-
-    let respawnCd = new Date(killedAt)
-    respawnCd.setUTCHours(killedAt.getUTCHours() + 30);
-    let window = new Date(killedAt)
-    window.setUTCHours(respawnCd.getUTCHours() + 70);
+    let { name, killedAt, respawnCd, respawnWindow } = data;
 
     let image;
 
@@ -50,9 +45,9 @@ module.exports = {
         },
         {
           name: "Window ends",
-          value: `${window.getUTCHours()}:${window.getUTCMinutes()} ST\n${window.getUTCDate()}/${
-            window.getUTCMonth() + 1
-          }/${window.getUTCFullYear()}`,
+          value: `${respawnWindow.getUTCHours()}:${respawnWindow.getUTCMinutes()} ST\n${respawnWindow.getUTCDate()}/${
+            respawnWindow.getUTCMonth() + 1
+          }/${respawnWindow.getUTCFullYear()}`,
           inline: true,
         }
       )

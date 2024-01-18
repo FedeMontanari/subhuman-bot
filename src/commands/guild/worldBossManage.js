@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require("discord.js");
 const WorldBoss = require("../../models/worldBosses");
 const { WorldBossEmbedBuilder } = require("../../utils/worldBossEmbedBuilder");
+const setTimers = require("../../utils/setTimers");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -129,7 +130,7 @@ module.exports = {
     let timeInput = interaction.options.getString("time");
     let boss;
 
-    // Validate user iput for time
+    // Validate user input for time
     if (
       (interaction.options.getSubcommand() == "create" ||
         interaction.options.getSubcommand() == "edit") &&
@@ -142,16 +143,22 @@ module.exports = {
 
     // INSERT the entry on the DB according to the command input
     if (interaction.options.getSubcommand() == "create") {
-      let date = new Date(Date.now());
-      date.setUTCDate(dateInput);
-      timeInput = timeInput.split(":");
-      date.setUTCHours(timeInput.shift());
-      date.setUTCMinutes(timeInput.shift());
+      // Create the boss entry
+      let { date, respawnCd, respawnWindow } = await setTimers({
+        time: timeInput,
+        date: dateInput,
+      });
+
       const newBoss = await WorldBoss.create({
         name: value.charAt(0).toUpperCase() + value.slice(1),
         slug: value,
         killedAt: date,
+        respawnCd,
+        respawnWindow,
+        hasTimer: false,
       });
+
+      // Return the response
       return await interaction.editReply(
         `New boss entry created. Name: ${newBoss.name}`
       );
@@ -163,7 +170,9 @@ module.exports = {
         });
       } catch (err) {
         console.error(err);
-        return await interaction.reply("An error occurred, please try again!");
+        return await interaction.editReply(
+          "An error occurred, please try again!"
+        );
       }
     }
 
@@ -176,11 +185,10 @@ module.exports = {
           });
 
         case "edit":
-          let date = new Date(Date.now());
-          date.setUTCDate(dateInput);
-          timeInput = timeInput.split(":");
-          date.setUTCHours(timeInput.shift());
-          date.setUTCMinutes(timeInput.shift());
+          let { date, respawnCd, respawnWindow } = await setTimers({
+            time: timeInput,
+            date: dateInput,
+          });
           try {
             await WorldBoss.findOneAndUpdate(
               {
@@ -188,6 +196,8 @@ module.exports = {
               },
               {
                 killedAt: date,
+                respawnCd,
+                respawnWindow,
               }
             );
           } catch (error) {

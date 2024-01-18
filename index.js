@@ -2,6 +2,8 @@ const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const fs = require("node:fs");
 const path = require("node:path");
 const databaseConnection = require("./databaseConnection");
+const schedule = require("node-schedule");
+const WorldBoss = require("./src/models/worldBosses");
 
 require("dotenv").config();
 const { BOT_TOKEN } = process.env;
