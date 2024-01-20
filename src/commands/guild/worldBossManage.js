@@ -1,7 +1,38 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, SlashCommandStringOption } = require("discord.js");
 const WorldBoss = require("../../models/worldBosses");
 const { WorldBossEmbedBuilder } = require("../../utils/worldBossEmbedBuilder");
 const setTimers = require("../../utils/setTimers");
+
+const stringOptions = new SlashCommandStringOption()
+  .setName("name")
+  .setDescription("Select the name of the boss")
+  .setRequired(true)
+  .addChoices(
+    {
+      name: "Kazzak",
+      value: "kazzak",
+    },
+    {
+      name: "Azuregos",
+      value: "azuregos",
+    },
+    {
+      name: "Emeriss",
+      value: "emeriss",
+    },
+    {
+      name: "Lethon",
+      value: "lethon",
+    },
+    {
+      name: "Taerar",
+      value: "taerar",
+    },
+    {
+      name: "Ysondre",
+      value: "ysondre",
+    }
+  );
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -11,43 +42,13 @@ module.exports = {
       subcommand
         .setName("get")
         .setDescription("Get the respawn window")
-        .addStringOption((option) =>
-          option
-            .setName("name")
-            .setDescription("Select the name of the boss")
-            .setRequired(true)
-            .addChoices(
-              {
-                name: "Kazzak",
-                value: "kazzak",
-              },
-              {
-                name: "Azuregos",
-                value: "azuregos",
-              }
-            )
-        )
+        .addStringOption(stringOptions)
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("edit")
         .setDescription("Edit the kill timer of the boss")
-        .addStringOption((option) =>
-          option
-            .setName("name")
-            .setDescription("Select the name of the boss")
-            .setRequired(true)
-            .addChoices(
-              {
-                name: "Kazzak",
-                value: "kazzak",
-              },
-              {
-                name: "Azuregos",
-                value: "azuregos",
-              }
-            )
-        )
+        .addStringOption(stringOptions)
         .addNumberOption((option) =>
           option
             .setName("date")
@@ -67,43 +68,13 @@ module.exports = {
       subcommand
         .setName("delete")
         .setDescription("Remove a boss kill timer")
-        .addStringOption((option) =>
-          option
-            .setName("name")
-            .setDescription("Select the name of the boss")
-            .setRequired(true)
-            .addChoices(
-              {
-                name: "Kazzak",
-                value: "kazzak",
-              },
-              {
-                name: "Azuregos",
-                value: "azuregos",
-              }
-            )
-        )
+        .addStringOption(stringOptions)
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("create")
         .setDescription("Create a boss kill timer")
-        .addStringOption((option) =>
-          option
-            .setName("name")
-            .setDescription("Select the name of the boss")
-            .setRequired(true)
-            .addChoices(
-              {
-                name: "Kazzak",
-                value: "kazzak",
-              },
-              {
-                name: "Azuregos",
-                value: "azuregos",
-              }
-            )
-        )
+        .addStringOption(stringOptions)
         .addNumberOption((option) =>
           option
             .setName("date")

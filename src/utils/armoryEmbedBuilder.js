@@ -1,5 +1,7 @@
 const { EmbedBuilder } = require("discord.js");
 
+const { items } = require("./wowDatabase");
+
 module.exports = {
   async ArmoryEmbedBuilder(data) {
     // Can't deconstruct *class* due to declaration conflict
@@ -15,6 +17,7 @@ module.exports = {
       talents,
       professions,
       gender,
+      equipment,
     } = data;
 
     // Stringifying talents array
@@ -24,6 +27,23 @@ module.exports = {
     // Stringifying professions array
     let profsString = professions.map((p) => `${p.name} - ${p.skill}`);
     profsString = profsString.join("\n");
+
+    // Parsing gear data
+    let gear = [];
+    equipment.map((eq) => {
+      gear.push({
+        name: eq.name,
+        id: eq.item,
+      });
+    });
+    gear = gear.map((eq) => {
+      let item = items.find((it) => it.itemId == eq.id);
+      return {
+        name: item.slot,
+        value: item.name,
+        inline: true,
+      };
+    });
 
     const newEmbed = new EmbedBuilder()
       .setColor("DarkRed")
@@ -64,14 +84,14 @@ module.exports = {
           value: "\u200B",
         }
       )
+      .addFields(gear)
+      .addFields({
+        name: "\u200B",
+        value: "\u200B",
+      })
       .setFooter({
         text: "* Talent tree detection is NOT working as intended until WOTLK",
       });
     return newEmbed;
-  },
-  async GearEmbedBuilder(data) {
-    const { equipment } = data;
-    const newEmbed = new EmbedBuilder()
-      .setTitle("Gear")
   },
 };
