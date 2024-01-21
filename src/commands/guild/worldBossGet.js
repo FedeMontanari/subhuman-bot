@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, SlashCommandStringOption } = require("discord.js");
 const WorldBoss = require("../../models/worldBosses");
 const { WorldBossEmbedBuilder } = require("../../utils/worldBossEmbedBuilder");
 
