@@ -9,4 +9,4 @@ Small Discord bot for a World of Warcraft guild from Warmane (Onyxia)
 
 
 #### To-do:
-- [ ] Warmane's armory request by character name.
+- [x] Warmane's armory request by character name.

@@ -17,20 +17,20 @@ const stringOptions = new SlashCommandStringOption()
       value: "azuregos",
     },
     {
-      name: "Emeriss",
-      value: "emeriss",
+      name: "Duskwood",
+      value: "duskwood",
     },
     {
-      name: "Lethon",
-      value: "lethon",
+      name: "Hinterlands",
+      value: "hinterlands",
     },
     {
-      name: "Taerar",
-      value: "taerar",
+      name: "Feralas",
+      value: "feralas",
     },
     {
-      name: "Ysondre",
-      value: "ysondre",
+      name: "Ashenvale",
+      value: "ashenvale",
     }
   );
 
